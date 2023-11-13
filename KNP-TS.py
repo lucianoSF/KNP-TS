@@ -5,9 +5,9 @@ import time
 #code = '1_100_1000_1'
 #code = '1_200_1000_1'
 #code = '1_500_1000_1'
-code = '1_1000_1000_1'
+#code = '1_1000_1000_1'
 #code = '1_2000_1000_1'
-#code = '1_5000_1000_1'
+code = '1_5000_1000_1'
 
 # Ler dados de entrada
 def read_weights_and_costs(file_name='instances/knapPI_' + code):
@@ -181,28 +181,6 @@ def TabuSearch(initial_solution, num_of_things, weights, costs, initial_weight, 
         initial_cost = new_cost
         initial_weight = new_weight
             
-        #delta_C = initial_cost - candidate_cost
-
-        # Compara se a solução candidata é melhor do que a solução inicial
-        #if delta_C < 0:
-        #    initial_solution = candidate_solution
-        #    initial_cost = candidate_cost
-        #    initial_weight = candidate_weight
-        # Se não for ainda existe possibilidade de aceitação da solução conforme a variação da temperatura
-        #else:
-        #    variable_control = random.random()
-
-            #expo = (-1 * delta_C)/temperature
-            # Solução degradada é aceita    
-            #if variable_control <= pow(EULER, expo):
-            #    initial_solution = candidate_solution
-            #    initial_cost = candidate_cost
-            #    initial_weight = candidate_weight
-
-        #Atualização da temperatura
-        #temperature = temperature*alpha
-        
-
         print('Best Solution Cost --> ', initial_cost, 'k: ', k)
         
                 
@@ -225,7 +203,7 @@ if __name__ == '__main__':
     start = time.time()
     
     number_iterations_solution_is_not_improved = 100
-    size_of_tabu = 10
+    size_of_tabu = 20
 
     weights, costs, number_of_things, capacity = read_weights_and_costs()
     
