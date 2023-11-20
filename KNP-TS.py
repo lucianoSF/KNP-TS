@@ -6,8 +6,8 @@ import time
 #code = '1_200_1000_1'
 #code = '1_500_1000_1'
 #code = '1_1000_1000_1'
-#code = '1_2000_1000_1'
-code = '1_5000_1000_1'
+code = '1_2000_1000_1'
+#code = '1_5000_1000_1'
 
 # Ler dados de entrada
 def read_weights_and_costs(file_name='instances/knapPI_' + code):
@@ -114,7 +114,7 @@ def create_new_solution(new_solution, item_to_remove, num_of_things, weights, co
     return new_solution, t_weight, t_cost
     
 
-def find_best_neighborhood(initial_solution, num_of_things, weights, costs, initial_weight, initial_cost):
+def find_best_neighborhood(initial_solution, num_of_things, weights, costs, initial_weight, initial_cost, TABU):
     best_neigh = None
     best_weight = None
     best_cost = None
@@ -131,14 +131,18 @@ def find_best_neighborhood(initial_solution, num_of_things, weights, costs, init
         #print('COS: ', t_cost)
         
         if best_neigh == None or t_cost > best_cost:
-            best_neigh = new_solution
-            best_weight = t_weight
-            best_cost = t_cost
+            #print('entry 1')
+            #print(best_neigh, TABU)
+            if best_neigh not in TABU:
+                #print('entry 2')
+                best_neigh = new_solution
+                best_weight = t_weight
+                best_cost = t_cost
             
     #print('BEST: ', best_neigh)
     #print('BEST: ', best_weight)
     #print('BEST: ', best_cost)
-    
+    #print('best', best_neigh)
     return best_neigh, best_weight, best_cost
         
         
@@ -149,10 +153,15 @@ def TabuSearch(initial_solution, num_of_things, weights, costs, initial_weight, 
 
     k = 0 # iteração sem mudança na solução
     LIST_OF_SOLUTIONS = []
+    LIST_OF_BEST = []
     best_solution = initial_solution
     best_solution_cost = initial_cost
+    
+    LIST_OF_SOLUTIONS.append(initial_cost)
+    LIST_OF_BEST.append(best_solution_cost)
+    
     best_solution_weight = initial_weight
-    TABU = [None] * tabu_size
+    TABU = [-1] * tabu_size
     tabu_ind = 0
     
     # Itera enquanto a solução não melhorar em k iterações
@@ -162,11 +171,12 @@ def TabuSearch(initial_solution, num_of_things, weights, costs, initial_weight, 
         
         
         # Gera solução candidata
-        new_solution, new_weight, new_cost = find_best_neighborhood(initial_solution, num_of_things, weights, costs, initial_weight, initial_cost)
+        new_solution, new_weight, new_cost = find_best_neighborhood(initial_solution, num_of_things, weights, costs, initial_weight, initial_cost, TABU)
         new_solution.sort()
-        if new_solution not in TABU:
-            TABU[tabu_ind] = new_solution
-            tabu_ind = (tabu_ind + 1)%tabu_size
+        # A melhor solução vizinha não deve estar na lista TABU (testada anteriormente)
+        #if new_solution not in TABU:
+        TABU[tabu_ind] = new_solution
+        tabu_ind = (tabu_ind + 1)%tabu_size
         
         
         if new_cost > best_solution_cost:
@@ -185,17 +195,20 @@ def TabuSearch(initial_solution, num_of_things, weights, costs, initial_weight, 
         
                 
         LIST_OF_SOLUTIONS.append(initial_cost)
+        LIST_OF_BEST.append(best_solution_cost)
         
-    record_solutions(solutions=LIST_OF_SOLUTIONS)
+    record_solutions(solutions=LIST_OF_SOLUTIONS, best=LIST_OF_BEST, suf='_solution.csv')
+    #record_solutions(solutions=LIST_OF_BEST, suf='_best.csv')
 
     return best_solution, best_solution_weight, best_solution_cost
  
 # Gravar soluções em arquivo
-def record_solutions(solutions, code=code):
-        with open('saidas/TS/' + code  + '_solution.csv', 'a') as file:
-            file.write('Solution\n')
-            for item in solutions:
-                file.write(str(item) + '\n')
+def record_solutions(solutions, best, suf, code=code):
+        with open('saidas/TS/' + code  + suf, 'a') as file:
+            file.write('Current;Best\n')
+            
+            for item1, item2 in zip(solutions, best):
+                file.write(str(item1) +';' + str(item2) + '\n')
                 
 
 if __name__ == '__main__':
